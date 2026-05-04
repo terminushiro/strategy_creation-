@@ -1,0 +1,1608 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Crypto Bot Simulator Mobile Prompt</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CryptoBot">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+:root{
+  --bg:#0a0a0f;
+  --surface:#111118;
+  --surface-2:#171724;
+  --surface-3:#1d1d2d;
+  --border:#2a2a3a;
+  --text:#e8e8f0;
+  --text-2:#9aa0b4;
+  --accent:#00e08a;
+  --accent-2:#4ea1ff;
+  --warn:#ffd166;
+  --danger:#ff5c70;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:radial-gradient(circle at top, #111522 0%, var(--bg) 35%);
+  color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;
+  min-height:100vh;
+  padding-bottom:56px;
+}
+.header{
+  position:sticky;top:0;z-index:100;
+  padding:14px 16px;
+  background:rgba(10,10,15,.94);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.header-title{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.08em;color:var(--accent)}
+.header-sub{font-size:10px;color:var(--text-2);font-family:'Space Mono',monospace}
+.tabs{
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  background:rgba(17,17,24,.92);border-bottom:1px solid var(--border);
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1 0 auto;border:none;background:transparent;color:var(--text-2);
+  padding:12px 16px;font-size:12px;font-weight:700;cursor:pointer;
+  border-bottom:2px solid transparent;
+}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.page{display:none;padding:14px}
+.page.active{display:block}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:14px;
+  box-shadow:0 16px 32px rgba(0,0,0,.18);
+}
+.card-title{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  margin-bottom:12px;font-size:11px;color:var(--accent);
+  font-family:'Space Mono',monospace;letter-spacing:.08em;
+}
+.card-title button{margin-left:auto}
+.section{margin-bottom:12px}
+.section:last-child{margin-bottom:0}
+.section-title{
+  font-size:13px;font-weight:700;color:var(--text);
+  padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid var(--border);
+}
+.label{display:block;font-size:11px;color:var(--text-2);margin-bottom:6px;font-weight:600}
+.caption{font-size:11px;color:var(--text-2);line-height:1.6;margin-top:6px}
+input,select,textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  color:var(--text);padding:11px 12px;font-size:14px;outline:none;
+  transition:border-color .2s, box-shadow .2s;font-family:'Noto Sans JP',sans-serif;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,224,138,.08)}
+textarea{resize:none;line-height:1.65}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chip-group{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);
+  border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;
+}
+.chip.active{border-color:var(--accent);color:var(--accent);background:rgba(0,224,138,.08)}
+.segment{display:flex;gap:8px;flex-wrap:wrap}
+.segment button{
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);
+  border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;
+}
+.btn{width:100%;padding:13px 14px;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+.btn-primary{background:var(--accent);color:#04140d}
+.btn-secondary{background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+.btn-small{width:auto;padding:8px 12px;font-size:12px;border-radius:10px}
+.btn-danger{border:1px solid var(--danger);color:var(--danger);background:transparent}
+.info{background:rgba(78,161,255,.08);border:1px solid rgba(78,161,255,.25);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.65;color:#96bcff;margin-bottom:10px}
+.warn{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.28);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.65;color:var(--warn);margin-bottom:10px}
+.subcard{margin-top:10px;padding:12px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.24)}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2);font-weight:700}
+.toggle input{width:auto;transform:scale(1.1)}
+.preview{background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:14px;color:#b9d2ff;font-family:'Space Mono',monospace;font-size:11px;line-height:1.8;white-space:pre-wrap;max-height:360px;overflow:auto}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120%);background:var(--accent);color:#04140d;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;transition:transform .3s ease;z-index:999}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.item-box{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}
+.item-meta{font-size:10px;color:var(--text-2);font-family:'Space Mono',monospace;margin-bottom:4px}
+.hidden{display:none!important}
+@media (max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="header-title">⚡ CRYPTO BOT SIMULATOR / MOBILE</div>
+    <div class="header-sub">prompt generator synced with desktop flow</div>
+  </div>
+  <div class="header-sub">v5</div>
+</div>
+<div class="tabs">
+  <button class="tab active" data-tab="prompt">🤖 プロンプト生成</button>
+  <button class="tab" data-tab="memo">📝 メモ</button>
+  <button class="tab" data-tab="ideas">💡 アイデア</button>
+</div>
+<div id="tab-prompt" class="page active">
+  <div class="card">
+    <div class="card-title">// 使い方</div>
+    <div class="info">PC版の prompt 生成ルールに寄せたスマホ版です。電車などで思いついた戦略をここで整理して、生成された文章をそのまま AI に渡せます。</div>
+    <div class="section">
+      <label class="label" for="f-gen-mode">生成対象</label>
+      <select id="f-gen-mode" data-store>
+        <option value="backtest" selected>過去データ検証用アルゴ</option>
+        <option value="realtime">リアルタイム検証用アルゴ</option>
+      </select>
+      <div class="caption">PC版と同じく、過去データ検証用とリアルタイム検証用を切り替えて使えます。</div>
+    </div>
+    <div class="segment">
+      <button type="button" id="btn-all-ai">🪄 主要項目をAI寄せ</button>
+      <button type="button" id="btn-reset-default">↺ 推奨初期値に戻す</button>
+    </div>
+  </div>
+  <div id="backtest-mode-wrap">
+  <div class="card">
+    <div class="card-title">STEP 1 // 基本設定</div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-filename-mode">出力ファイル名の決め方</label>
+        <select id="f-filename-mode" data-store>
+          <option selected>戦略名からAIが自動生成</option>
+          <option>AIに判定してもらう</option>
+          <option>手動入力</option>
+        </select>
+      </div>
+      <div>
+        <label class="label" for="f-name-mode">戦略名の決め方</label>
+        <select id="f-name-mode" data-store>
+          <option>AIに判定してもらう</option>
+          <option>手動入力</option>
+        </select>
+      </div>
+    </div>
+    <div id="filename-wrap" class="section hidden">
+      <label class="label" for="f-filename">ファイル名</label>
+      <input id="f-filename" data-store placeholder="例: sol_core_satellite_rsi_v1.py">
+    </div>
+    <div id="name-wrap" class="section hidden">
+      <label class="label" for="f-name">戦略名</label>
+      <input id="f-name" data-store placeholder="例: SOL Core + Satellite RSI Trend">
+    </div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-strategy-type-mode">戦略タイプの決め方</label>
+        <select id="f-strategy-type-mode" data-store>
+          <option selected>AIに判定してもらう</option>
+          <option>手動入力</option>
+        </select>
+      </div>
+      <div id="strategy-type-wrap" class="hidden">
+        <label class="label" for="f-strategy-type">戦略タイプ</label>
+        <select id="f-strategy-type" data-store>
+          <option selected>トレンドフォロー</option>
+          <option>平均回帰</option>
+          <option>ブレイクアウト</option>
+          <option>モメンタム</option>
+          <option>押し目買い・戻り売り</option>
+          <option>スキャルピング</option>
+          <option>スイング</option>
+          <option>グリッド</option>
+          <option>マーケットメイク</option>
+          <option>アービトラージ</option>
+          <option>ペアトレード</option>
+          <option>ファンディング活用</option>
+          <option>コアサテライト</option>
+          <option>資産ローテーション</option>
+          <option>イベントドリブン</option>
+          <option>ボラティリティ活用</option>
+          <option>その他</option>
+        </select>
+      </div>
+    </div>
+    <div class="section">
+      <label class="label" for="f-overview-mode">戦略概要の決め方</label>
+      <select id="f-overview-mode" data-store>
+        <option>AIに判定してもらう</option>
+        <option>手動入力</option>
+      </select>
+    </div>
+    <div id="overview-wrap" class="section hidden">
+      <label class="label" for="f-overview">戦略概要（algo_info["overview"] 用）</label>
+      <textarea id="f-overview" data-store rows="4" placeholder="例: BTCを長期でcore保有しつつ、SOLの押し目回復をsatelliteで追加ロングする共有証拠金戦略。"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">STEP 2 // 取引の前提</div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-trade-style">取引形態（どの商品・口座前提で運用するか）</label>
+        <select id="f-trade-style" data-store>
+          <option>AIに判定してもらう</option>
+          <option>現物</option>
+          <option selected>先物</option>
+          <option>現物ペア運用</option>
+        </select>
+      </div>
+      <div>
+        <label class="label" for="f-trade-mode">売買モード（どの方向に売買するか）</label>
+        <select id="f-trade-mode" data-store>
+          <option>AIに判定してもらう</option>
+          <option>現物の買いエントリーのみ（決済売りあり）</option>
+          <option>現物の買い/売り（空売りなし）</option>
+          <option selected>ロングのみ</option>
+          <option>ショートのみ</option>
+          <option>Long / Short 両方</option>
+        </select>
+      </div>
+    </div>
+    <div class="section">
+      <div class="label">ポジション構造（ポジションの持ち方）</div>
+      <div id="arch-g" class="chip-group">
+        <button type="button" class="chip" data-group="arch-g" data-value="AIに判定してもらう">AIに判定してもらう</button>
+        <button type="button" class="chip" data-group="arch-g" data-value="単一ポジション">通常の売買BOT（1回に1ポジション）</button>
+        <button type="button" class="chip active" data-group="arch-g" data-value="core + satellite">core + satellite（長期保有 + 追加売買）</button>
+      </div>
+      <div class="caption">通常の売買BOTなら単一ポジション、長期保有と追加売買を分けたいなら core + satellite を選びます。</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">STEP 3 // 対象銘柄・足・エントリー</div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-asset-mode">対象銘柄の決め方</label>
+        <select id="f-asset-mode" data-store>
+          <option selected>手動入力</option>
+          <option>AIに判定してもらう</option>
+        </select>
+      </div>
+      <div>
+        <label class="label" for="f-timeframe-mode">推奨足の決め方</label>
+        <select id="f-timeframe-mode" data-store>
+          <option>AIに判定してもらう</option>
+          <option selected>手動入力</option>
+        </select>
+      </div>
+    </div>
+    <div id="single-asset-wrap" class="section hidden">
+      <label class="label" for="f-asset">対象銘柄 / 候補</label>
+      <input id="f-asset" data-store placeholder="例: SOLUSDT または BTCUSDT, SOLUSDT">
+    </div>
+    <div id="core-sat-asset-wrap" class="section">
+      <div class="info">core + satellite を選んだときは、core資産 / satellite資産 を別々に指定できます。同一銘柄なら single_csv、別銘柄なら dual_csv をプロンプトへ反映します。</div>
+      <div class="grid-2">
+        <div>
+          <label class="label" for="f-core">Core資産</label>
+          <input id="f-core" data-store placeholder="例: BTCUSDT">
+        </div>
+        <div>
+          <label class="label" for="f-sat">Satellite資産</label>
+          <input id="f-sat" data-store placeholder="例: SOLUSDT">
+        </div>
+      </div>
+    </div>
+    <div id="timeframe-wrap" class="section">
+      <div class="label">推奨足</div>
+      <div id="tf-g" class="chip-group">
+        <button type="button" class="chip" data-group="tf-g" data-value="1分">1分</button>
+        <button type="button" class="chip" data-group="tf-g" data-value="5分">5分</button>
+        <button type="button" class="chip" data-group="tf-g" data-value="15分">15分</button>
+        <button type="button" class="chip" data-group="tf-g" data-value="30分">30分</button>
+        <button type="button" class="chip" data-group="tf-g" data-value="1時間">1時間</button>
+        <button type="button" class="chip active" data-group="tf-g" data-value="4時間">4時間</button>
+        <button type="button" class="chip" data-group="tf-g" data-value="日足">日足</button>
+      </div>
+    </div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-entry-mode">エントリー条件の決め方</label>
+        <select id="f-entry-mode" data-store>
+          <option>AIに判定してもらう</option>
+          <option selected>手動入力</option>
+        </select>
+      </div>
+      <div id="core-entry-wrap">
+        <label class="label" for="f-core-entry-mode">Coreエントリー</label>
+        <select id="f-core-entry-mode" data-store>
+          <option selected>原則ホールド（初回保有）</option>
+          <option>シグナル連動</option>
+        </select>
+      </div>
+    </div>
+    <div id="entry-text-wrap" class="section">
+      <label class="label" for="f-entry">エントリー条件</label>
+      <textarea id="f-entry" data-store rows="5" placeholder="例: EMA20 > EMA50 の上昇トレンド中に、RSIが45を下から上へ回復したら買い。必要なら出来高条件も追加。"></textarea>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">STEP 4 // 出口条件</div>
+    <div id="core-sat-exit-wrap">
+      <div class="section-title">Core出口条件</div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="f-core-exit-rule-mode">Core出口条件の決め方</label>
+          <select id="f-core-exit-rule-mode" data-store>
+            <option>AIに判定してもらう</option>
+            <option selected>手動入力</option>
+          </select>
+        </div>
+        <div id="core-exit-help" class="caption">Core側にも段階利確やシグナル決済を指定できます。</div>
+      </div>
+      <div id="core-exit-manual">
+        <div class="label">Core決済方式</div>
+        <div id="core-exit-g" class="chip-group section">
+          <button type="button" class="chip" data-group="core-exit-g" data-value="hold">原則ホールド（決済しない）</button>
+          <button type="button" class="chip" data-group="core-exit-g" data-value="tp_sl">TP/SL のみ</button>
+          <button type="button" class="chip" data-group="core-exit-g" data-value="signal">シグナル決済のみ</button>
+          <button type="button" class="chip" data-group="core-exit-g" data-value="tp_sl_or_signal">TP/SL OR シグナル</button>
+          <button type="button" class="chip" data-group="core-exit-g" data-value="tp_sl_and_signal">TP/SL AND シグナル</button>
+          <button type="button" class="chip active" data-group="core-exit-g" data-value="staged">段階利確</button>
+        </div>
+        <div id="core-tpsl-wrap" class="grid-2 hidden">
+          <div><label class="label" for="f-core-tp">Core TP (%)</label><input id="f-core-tp" data-store type="number" value="80"></div>
+          <div><label class="label" for="f-core-sl">Core SL (%)</label><input id="f-core-sl" data-store type="number" value="15"></div>
+        </div>
+        <div id="core-signal-wrap" class="section hidden">
+          <label class="label" for="f-core-exit-sig">Coreシグナル決済条件の補足</label>
+          <textarea id="f-core-exit-sig" data-store rows="3" placeholder="例: 週足EMA200を終値で明確に割れたら Core を縮小・決済"></textarea>
+        </div>
+        <div id="core-stage-wrap" class="subcard">
+          <div class="label">Core段階利確モード</div>
+          <div id="core-stage-mode-g" class="chip-group section">
+            <button type="button" class="chip" data-group="core-stage-mode-g" data-value="fixed">固定TP（TP1/TP2/TP3）</button>
+            <button type="button" class="chip active" data-group="core-stage-mode-g" data-value="repeat">倍率起点の繰り返し利確</button>
+          </div>
+          <div id="core-stage-fixed" class="hidden">
+            <div class="grid-3 section">
+              <div><label class="label" for="f-core-tp1">Core TP1 (%)</label><input id="f-core-tp1" data-store type="number" value="100"></div>
+              <div><label class="label" for="f-core-tp1r">TP1決済比率 (%)</label><input id="f-core-tp1r" data-store type="number" value="10"></div>
+              <div><label class="label" for="f-core-sl-fixed">Core SL (%)</label><input id="f-core-sl-fixed" data-store type="number" value="20"></div>
+            </div>
+            <div class="grid-3 section">
+              <div><label class="label" for="f-core-tp2">Core TP2 (%)</label><input id="f-core-tp2" data-store type="number" value="200"></div>
+              <div><label class="label" for="f-core-tp2r">TP2決済比率 (%)</label><input id="f-core-tp2r" data-store type="number" value="10"></div>
+              <div></div>
+            </div>
+            <div class="grid-3 section">
+              <div><label class="label" for="f-core-tp3">Core TP3 (%)</label><input id="f-core-tp3" data-store type="number" value="300"></div>
+              <div><label class="label" for="f-core-tp3r">TP3決済比率 (%)</label><input id="f-core-tp3r" data-store type="number" value="10"></div>
+              <div></div>
+            </div>
+          </div>
+          <div id="core-stage-repeat">
+            <div class="warn">例: 3.0倍到達後、さらに +10% ごとに 5% ずつ利確。長期で伸びた資産を少しずつ現金化したいとき向けです。</div>
+            <div class="grid-2 section">
+              <div><label class="label" for="f-core-mul">開始倍率 (x)</label><input id="f-core-mul" data-store type="number" value="3.0" step="0.5"></div>
+              <div><label class="label" for="f-core-step">追加利確ステップ (%)</label><input id="f-core-step" data-store type="number" value="10"></div>
+            </div>
+            <div class="grid-3 section">
+              <div><label class="label" for="f-core-sell">各ステップ売却率 (%)</label><input id="f-core-sell" data-store type="number" value="5"></div>
+              <div><label class="label" for="f-core-maxs">最大利確回数</label><input id="f-core-maxs" data-store type="number" value="0"></div>
+              <div><label class="label" for="f-core-sl-rep">Core SL (%)</label><input id="f-core-sl-rep" data-store type="number" value="0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-title">Satellite出口条件</div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="f-sat-exit-rule-mode">Satellite出口条件の決め方</label>
+          <select id="f-sat-exit-rule-mode" data-store>
+            <option>AIに判定してもらう</option>
+            <option selected>手動入力</option>
+          </select>
+        </div>
+        <div class="caption">satellite の TP/SL は個別建玉ごとに管理する前提です。</div>
+      </div>
+      <div id="sat-exit-manual">
+        <div class="label">Satellite決済方式</div>
+        <div id="sat-exit-g" class="chip-group section">
+          <button type="button" class="chip" data-group="sat-exit-g" data-value="tp_sl">TP/SL のみ</button>
+          <button type="button" class="chip" data-group="sat-exit-g" data-value="signal">シグナル決済のみ</button>
+          <button type="button" class="chip active" data-group="sat-exit-g" data-value="tp_sl_or_signal">TP/SL OR シグナル</button>
+          <button type="button" class="chip" data-group="sat-exit-g" data-value="tp_sl_and_signal">TP/SL AND シグナル</button>
+          <button type="button" class="chip" data-group="sat-exit-g" data-value="staged">段階利確</button>
+        </div>
+        <div id="sat-tpsl-wrap" class="grid-2 section">
+          <div><label class="label" for="f-sat-tp">Sat TP (%)</label><input id="f-sat-tp" data-store type="number" value="10"></div>
+          <div><label class="label" for="f-sat-sl">Sat SL (%)</label><input id="f-sat-sl" data-store type="number" value="5"></div>
+        </div>
+        <div id="sat-signal-wrap" class="section hidden">
+          <label class="label" for="f-sat-exit-sig">Satelliteシグナル決済条件の補足</label>
+          <textarea id="f-sat-exit-sig" data-store rows="3" placeholder="例: RSIが中立圏へ戻ったら決済 / EMA20を終値で再度割れたら撤退"></textarea>
+        </div>
+        <div id="sat-stage-wrap" class="subcard hidden">
+          <div class="grid-3 section">
+            <div><label class="label" for="f-sat-tp1">Sat TP1 (%)</label><input id="f-sat-tp1" data-store type="number" value="5"></div>
+            <div><label class="label" for="f-sat-tp1r">TP1決済比率 (%)</label><input id="f-sat-tp1r" data-store type="number" value="33"></div>
+            <div><label class="label" for="f-sat-sl2">Sat SL (%)</label><input id="f-sat-sl2" data-store type="number" value="10"></div>
+          </div>
+          <div class="grid-3 section">
+            <div><label class="label" for="f-sat-tp2">Sat TP2 (%)</label><input id="f-sat-tp2" data-store type="number" value="10"></div>
+            <div><label class="label" for="f-sat-tp2r">TP2決済比率 (%)</label><input id="f-sat-tp2r" data-store type="number" value="33"></div>
+            <div></div>
+          </div>
+          <div class="grid-2 section">
+            <div><label class="label" for="f-sat-tp3">Sat TP3 (%)</label><input id="f-sat-tp3" data-store type="number" value="15"></div>
+            <div><label class="label" for="f-sat-tp3r">TP3決済比率 (%)</label><input id="f-sat-tp3r" data-store type="number" value="34"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="normal-exit-wrap" class="hidden">
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="f-normal-exit-rule-mode">出口条件の決め方</label>
+          <select id="f-normal-exit-rule-mode" data-store>
+            <option>AIに判定してもらう</option>
+            <option selected>手動入力</option>
+          </select>
+        </div>
+        <div class="caption">単一ポジション時の決済方式です。</div>
+      </div>
+      <div id="normal-exit-manual">
+        <div class="label">決済方式</div>
+        <div id="normal-exit-g" class="chip-group section">
+          <button type="button" class="chip active" data-group="normal-exit-g" data-value="tp_sl">TP/SL のみ</button>
+          <button type="button" class="chip" data-group="normal-exit-g" data-value="signal">シグナル決済のみ</button>
+          <button type="button" class="chip" data-group="normal-exit-g" data-value="tp_sl_or_signal">TP/SL OR シグナル</button>
+          <button type="button" class="chip" data-group="normal-exit-g" data-value="tp_sl_and_signal">TP/SL AND シグナル</button>
+          <button type="button" class="chip" data-group="normal-exit-g" data-value="staged">段階利確</button>
+        </div>
+        <div id="normal-tpsl-wrap" class="grid-2 section">
+          <div><label class="label" for="f-tp">TP (%)</label><input id="f-tp" data-store type="number" value="8"></div>
+          <div><label class="label" for="f-sl">SL (%)</label><input id="f-sl" data-store type="number" value="4"></div>
+        </div>
+        <div id="normal-signal-wrap" class="section hidden">
+          <label class="label" for="f-exit-sig">シグナル決済条件の補足</label>
+          <textarea id="f-exit-sig" data-store rows="3" placeholder="例: 逆シグナル、またはトレンド判定が崩れたバーで決済"></textarea>
+        </div>
+        <div id="normal-stage-wrap" class="subcard hidden">
+          <div class="grid-3 section">
+            <div><label class="label" for="f-tp1">TP1 (%)</label><input id="f-tp1" data-store type="number" value="5"></div>
+            <div><label class="label" for="f-tp1r">TP1決済比率 (%)</label><input id="f-tp1r" data-store type="number" value="33"></div>
+            <div><label class="label" for="f-sl2">SL (%)</label><input id="f-sl2" data-store type="number" value="10"></div>
+          </div>
+          <div class="grid-3 section">
+            <div><label class="label" for="f-tp2">TP2 (%)</label><input id="f-tp2" data-store type="number" value="10"></div>
+            <div><label class="label" for="f-tp2r">TP2決済比率 (%)</label><input id="f-tp2r" data-store type="number" value="33"></div>
+            <div></div>
+          </div>
+          <div class="grid-2 section">
+            <div><label class="label" for="f-tp3">TP3 (%)</label><input id="f-tp3" data-store type="number" value="15"></div>
+            <div><label class="label" for="f-tp3r">TP3決済比率 (%)</label><input id="f-tp3r" data-store type="number" value="34"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">STEP 5 // 資金管理・レバレッジ・補足</div>
+    <div class="grid-2 section">
+      <div>
+        <label class="label" for="f-risk-mode">資金管理の決め方</label>
+        <select id="f-risk-mode" data-store>
+          <option>AIに判定してもらう</option>
+          <option selected>手動入力</option>
+        </select>
+      </div>
+      <div class="caption">PC版と同様に、資金管理だけAIに任せることもできます。</div>
+    </div>
+    <div id="risk-manual-wrap" class="grid-2 section">
+      <div><label class="label" for="f-capital">初期資産 (USD)</label><input id="f-capital" data-store type="number" value="10000"></div>
+      <div><label class="label" for="f-possize">ポジションサイズ (%)</label><input id="f-possize" data-store type="number" value="100"></div>
+    </div>
+    <div id="cs-params-wrap">
+      <div class="section-title">Core + Satellite パラメータ</div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-alloc">Core配分 (%)</label><input id="f-alloc" data-store type="number" value="100"></div>
+        <div><label class="label" for="f-corelev">Coreレバレッジ (x)</label><input id="f-corelev" data-store type="number" step="0.5" value="1.0"></div>
+      </div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-maxlev">最大総合レバ (x)</label><input id="f-maxlev" data-store type="number" step="0.5" value="3.0"></div>
+        <div><label class="label" for="f-satpct">Sat1回エントリー比率 (%)</label><input id="f-satpct" data-store type="number" step="0.5" value="5.0"></div>
+      </div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-satmaxusd">Sat最大エクスポージャー (USD / 0=制限なし)</label><input id="f-satmaxusd" data-store type="number" value="0"></div>
+        <div><label class="label" for="f-haircut">担保掛け目 (%)</label><input id="f-haircut" data-store type="number" value="100"></div>
+      </div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-maint">維持証拠金率 (%)</label><input id="f-maint" data-store type="number" step="0.1" value="0.5"></div>
+        <div><label class="label" for="f-no-core-entry">Core不在時Satエントリー比率 (%)</label><input id="f-no-core-entry" data-store type="number" step="1" value="5"></div>
+      </div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-no-core-max">Core不在時Sat最大エクスポージャー (%)</label><input id="f-no-core-max" data-store type="number" step="5" value="30"></div>
+        <div></div>
+      </div>
+      <div class="toggle-row section">
+        <label class="toggle"><input id="f-sat-scale" data-store type="checkbox">SatサイズをCore評価額に連動</label>
+        <label class="toggle"><input id="f-same-short-protect" data-store type="checkbox" checked>同一銘柄ショート保護</label>
+      </div>
+      <div class="grid-2 section" id="sat-scale-params">
+        <div><label class="label" for="f-sat-up-multi">上昇時の拡大上限倍率</label><input id="f-sat-up-multi" data-store type="number" step="0.5" value="3.0"></div>
+        <div><label class="label" for="f-sat-down-floor">下落時の最低エントリー率 (%)</label><input id="f-sat-down-floor" data-store type="number" step="5" value="0"></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="toggle-row section">
+      <div>
+        <div class="label">レバレッジ先物専用ルールを追加</div>
+        <div class="caption">先物やレバレッジ戦略を前提にするときにONにします。core + satellite では Satellite 側レバ条件として扱う前提で書かれます。</div>
+      </div>
+      <label class="toggle"><input id="f-use-leverage" data-store type="checkbox" checked>ON</label>
+    </div>
+    <div id="leverage-wrap">
+      <div class="grid-2 section">
+        <div><label class="label" for="f-lev">想定レバレッジ (x)</label><input id="f-lev" data-store type="number" value="3"></div>
+        <div><label class="label" for="f-margin">マージンモード</label><select id="f-margin" data-store><option>分離マージン</option><option>クロスマージン</option></select></div>
+      </div>
+      <div class="grid-2 section">
+        <div><label class="label" for="f-fee">手数料率（テイカー %）</label><input id="f-fee" data-store type="number" step="0.001" value="0.055"></div>
+        <div><label class="label" for="f-fr">想定ファンディングレート（%/8h）</label><input id="f-fr" data-store type="number" step="0.001" value="0.010"></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+      <label class="label" for="f-goal-mode">今回の検証テーマ・目的の入力方法</label>
+      <select id="f-goal-mode" data-store>
+        <option selected>自由記述</option>
+        <option>期間×目標リターン</option>
+        <option>期間×最終資産額</option>
+        <option>枚数目標</option>
+      </select>
+    </div>
+    <div id="goal-free-wrap" class="section">
+      <label class="label" for="f-goal">今回の検証テーマ・目的</label>
+      <textarea id="f-goal" data-store rows="3" placeholder="例: ガチホに大きく負けず、最大DDを抑えつつSOLの上昇を取りたい"></textarea>
+    </div>
+    <div id="goal-return-wrap" class="grid-2 section hidden">
+      <div><label class="label" for="f-goal-period">運用期間</label><input id="f-goal-period" data-store placeholder="例: 6か月"></div>
+      <div><label class="label" for="f-goal-return">目標リターン</label><input id="f-goal-return" data-store placeholder="例: +50% / 2倍"></div>
+    </div>
+    <div id="goal-asset-wrap" class="grid-3 section hidden">
+      <div><label class="label" for="f-goal-period2">運用期間</label><input id="f-goal-period2" data-store placeholder="例: 1年"></div>
+      <div><label class="label" for="f-goal-init">初期資産</label><input id="f-goal-init" data-store placeholder="例: 10000 USDT"></div>
+      <div><label class="label" for="f-goal-final">目標最終資産</label><input id="f-goal-final" data-store placeholder="例: 50000 USDT"></div>
+    </div>
+    <div id="goal-qty-wrap" class="grid-3 section hidden">
+      <div><label class="label" for="f-goal-sym">対象銘柄</label><input id="f-goal-sym" data-store placeholder="例: AVAX"></div>
+      <div><label class="label" for="f-goal-now">現在枚数</label><input id="f-goal-now" data-store placeholder="例: 200枚"></div>
+      <div><label class="label" for="f-goal-target">目標枚数</label><input id="f-goal-target" data-store placeholder="例: 500枚"></div>
+    </div>
+    <div class="section">
+      <label class="label" for="f-notes-mode">補足の決め方</label>
+      <select id="f-notes-mode" data-store>
+        <option selected>手動入力</option>
+        <option>AIに判定してもらう</option>
+      </select>
+    </div>
+    <div id="notes-wrap" class="section">
+      <label class="label" for="f-notes">補足・変えたくないこと・制約</label>
+      <textarea id="f-notes" data-store rows="4" placeholder="例: 日本語コメントを維持 / # PARAM は減らしすぎない / Coreは長期保有前提のまま"></textarea>
+    </div>
+  </div>
+  </div>
+  <div id="realtime-mode-wrap" class="hidden">
+    <div class="card">
+      <div class="card-title">RT STEP 1 // 基本設定</div>
+      <div class="info">リアルタイム検証用は `generate_signals(df, params)` の単一OHLCV前提です。PC版のリアルタイム仕様書に寄せた内容を生成します。</div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="rt-name-mode">戦略名の決め方</label>
+          <select id="rt-name-mode" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>手動入力</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="rt-style">取引スタイル</label>
+          <select id="rt-style" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>スキャルピング（1分〜5分足）</option>
+            <option>短期デイトレード（5分〜15分足）</option>
+            <option>モメンタム順張り（15分〜1時間足）</option>
+            <option>短中期トレンドフォロー（1時間〜4時間足）</option>
+          </select>
+        </div>
+      </div>
+      <div id="rt-name-wrap" class="section hidden">
+        <label class="label" for="rt-name">戦略名</label>
+        <input id="rt-name" data-store placeholder="例: Adaptive EMA RSI Pulse">
+      </div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="rt-dir">取引方向</label>
+          <select id="rt-dir" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>ロングのみ</option>
+            <option>ショートのみ</option>
+            <option>ロング / ショート両方</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="rt-target">取引対象</label>
+          <select id="rt-target" data-store>
+            <option selected>単一銘柄（指定した1つの銘柄）</option>
+            <option>複数銘柄スキャン（急騰/急落ランキング）</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">RT STEP 2 // 対象・エントリー</div>
+      <div id="rt-single-wrap" class="section">
+        <label class="label" for="rt-symbol">対象銘柄 / 候補</label>
+        <input id="rt-symbol" data-store placeholder="例: BTCUSDT">
+      </div>
+      <div id="rt-scan-wrap" class="section hidden">
+        <div class="grid-2 section">
+          <div>
+            <label class="label" for="rt-scan-tf">何分ごとに騰落率を見るか</label>
+            <select id="rt-scan-tf" data-store>
+              <option>1</option>
+              <option>3</option>
+              <option>5</option>
+              <option selected>15</option>
+              <option>30</option>
+              <option>60</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="rt-rank-target">順位対象</label>
+            <select id="rt-rank-target" data-store>
+              <option selected>急騰上位</option>
+              <option>急落上位</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2 section">
+          <div>
+            <label class="label" for="rt-rank-n">何位まで使うか</label>
+            <input id="rt-rank-n" data-store type="number" value="5">
+          </div>
+          <div>
+            <label class="label" for="rt-universe">対象ユニバース</label>
+            <input id="rt-universe" data-store placeholder="例: BTCUSDT, ETHUSDT, SOLUSDT, XRPUSDT">
+          </div>
+        </div>
+      </div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="rt-entry-mode">エントリー条件の決め方</label>
+          <select id="rt-entry-mode" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>手動入力</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="rt-indicators">使用指標</label>
+          <input id="rt-indicators" data-store placeholder="例: EMA, RSI, ATR">
+        </div>
+      </div>
+      <div id="rt-entry-wrap" class="section hidden">
+        <label class="label" for="rt-entry">エントリー条件</label>
+        <textarea id="rt-entry" data-store rows="5" placeholder="例: EMA20 > EMA60 かつ RSI > 55 ならBUY。"></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">RT STEP 3 // 注文・決済</div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="rt-order-mode">注文方法の決め方</label>
+          <select id="rt-order-mode" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>手動入力</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="rt-order-type">注文方法</label>
+          <select id="rt-order-type" data-store>
+            <option selected>成行</option>
+            <option>指値</option>
+          </select>
+        </div>
+      </div>
+      <div id="rt-order-wrap" class="grid-2 section hidden">
+        <div><label class="label" for="rt-max-pos">最大同時保有数</label><input id="rt-max-pos" data-store type="number" value="3"></div>
+        <div><label class="label" for="rt-possize">1回エントリー額（資産の%）</label><input id="rt-possize" data-store type="number" value="10" step="1"></div>
+      </div>
+      <div id="rt-limit-wrap" class="grid-2 section hidden">
+        <div><label class="label" for="rt-limit-offset">指値オフセット (%)</label><input id="rt-limit-offset" data-store type="number" value="0.5" step="0.1"></div>
+        <div><label class="label" for="rt-limit-timeout">未約定キャンセル時間 (時間)</label><input id="rt-limit-timeout" data-store type="number" value="1.0" step="0.5"></div>
+      </div>
+      <div class="grid-2 section">
+        <div>
+          <label class="label" for="rt-exit-mode">決済方法の決め方</label>
+          <select id="rt-exit-mode" data-store>
+            <option selected>AIに判定してもらう</option>
+            <option>手動入力</option>
+          </select>
+        </div>
+        <div>
+          <label class="label" for="rt-exit-type">決済方式</label>
+          <select id="rt-exit-type" data-store>
+            <option selected>TP/SL（利確・損切り）</option>
+            <option>シグナル決済</option>
+            <option>保有時間で決済</option>
+            <option>TP/SL + シグナル</option>
+          </select>
+        </div>
+      </div>
+      <div id="rt-exit-wrap" class="section hidden">
+        <div id="rt-tpsl-wrap">
+          <div class="grid-2 section">
+            <div><label class="label" for="rt-tp-unit">利確単位</label><select id="rt-tp-unit" data-store><option selected>パーセント（%）</option><option>USDT値幅</option></select></div>
+            <div><label class="label" for="rt-tp-val">利確値</label><input id="rt-tp-val" data-store type="number" value="3" step="0.5"></div>
+          </div>
+          <div class="grid-2 section">
+            <div><label class="label" for="rt-sl-unit">損切単位</label><select id="rt-sl-unit" data-store><option selected>パーセント（%）</option><option>USDT値幅</option></select></div>
+            <div><label class="label" for="rt-sl-val">損切値</label><input id="rt-sl-val" data-store type="number" value="1" step="0.5"></div>
+          </div>
+        </div>
+        <div id="rt-holdbars-wrap" class="section hidden">
+          <label class="label" for="rt-hold-bars">保有時間（バー本数）</label>
+          <input id="rt-hold-bars" data-store type="number" value="4">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">RT STEP 4 // 補足</div>
+      <div class="section">
+        <label class="label" for="rt-notes">補足・変えたくないこと・制約</label>
+        <textarea id="rt-notes" data-store rows="4" placeholder="例: 日本語コメントを維持 / generate_signals 型のみ / TP/SL は # PARAM で必ず切り出す"></textarea>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-primary" type="button" id="btn-generate">✨ プロンプトを生成してコピー</button>
+  <div style="height:10px"></div>
+  <div id="result-wrap" class="hidden">
+    <div class="card">
+      <div class="card-title">// 生成されたプロンプト <button class="btn btn-small btn-secondary" type="button" id="btn-copy">📋 コピー</button></div>
+      <div id="prompt-preview" class="preview"></div>
+    </div>
+  </div>
+</div>
+<div id="tab-memo" class="page">
+  <div class="card">
+    <div class="card-title">📝 自由メモ</div>
+    <textarea id="memo-text" rows="14" placeholder="試したパラメータ、良かった条件、次に直したい点などをメモできます。"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-secondary btn-small" type="button" id="btn-copy-memo" style="flex:1">コピー</button>
+      <button class="btn btn-danger btn-small" type="button" id="btn-clear-memo" style="flex:1">クリア</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🏷 パラメータ覚え書き</div>
+    <div class="section"><input id="pnote-title" placeholder="タイトル 例: SOL RSI v2 良かった設定"></div>
+    <div class="section"><textarea id="pnote-body" rows="3" placeholder="例: 出来高フィルターOFF, SatTP=10, SatSL=5, 4時間足"></textarea></div>
+    <button class="btn btn-primary" type="button" id="btn-save-pnote">💾 保存</button>
+    <div id="pnote-list" style="margin-top:10px"></div>
+  </div>
+</div>
+<div id="tab-ideas" class="page">
+  <div class="card">
+    <div class="card-title">💡 アイデアを保存</div>
+    <div class="section"><textarea id="idea-text" rows="3" placeholder="ふと思いついた戦略のタネを書いておけます。"></textarea></div>
+    <div class="section"><input id="idea-tag" placeholder="タグ 例: SOL, core+satellite, breakout"></div>
+    <button class="btn btn-primary" type="button" id="btn-save-idea">💾 保存</button>
+  </div>
+  <div class="card">
+    <div class="card-title">📚 保存済みアイデア</div>
+    <div id="idea-list"></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const FORM_KEY = 'strategy_mobile_prompt_v6';
+const MEMO_KEY = 'strategy_mobile_memo_v4';
+const PNOTE_KEY = 'strategy_mobile_param_notes_v4';
+const IDEA_KEY = 'strategy_mobile_ideas_v4';
+function $(id){ return document.getElementById(id); }
+function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+function read(id, fallback=''){ const el=$(id); if(!el) return fallback; if(el.type==='checkbox') return !!el.checked; return (el.value ?? fallback) === '' ? fallback : el.value; }
+function setVal(id, value){ const el=$(id); if(!el) return; if(el.type==='checkbox') el.checked = !!value; else el.value = value; }
+function show(el, visible){ if(!el) return; el.classList.toggle('hidden', !visible); }
+function normalizeSymbol(v){ return (v || '').trim().toUpperCase().replace(/\s+/g, ''); }
+function splitSymbols(v){ return String(v || '').split(/[\s,、/]+/).map(normalizeSymbol).filter(Boolean); }
+function hasSignalExit(mode){ return ['signal', 'tp_sl_or_signal', 'tp_sl_and_signal'].includes(mode); }
+function currentChip(groupId){ const el=document.querySelector(`#${groupId} .chip.active`); return el ? el.dataset.value : ''; }
+function setChip(groupId, value){
+  const chips=$all(`#${groupId} .chip`);
+  let matched=false;
+  chips.forEach(chip=>{
+    const active = chip.dataset.value === value;
+    chip.classList.toggle('active', active);
+    if(active) matched=true;
+  });
+  if(!matched && chips[0]) chips[0].classList.add('active');
+}
+function indent(text, spaces=2){
+  const pad=' '.repeat(spaces);
+  return String(text || '').split('\n').map(line => line ? pad + line : '').join('\n');
+}
+function toast(msg){
+  const el=$('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>el.classList.remove('show'), 2200);
+}
+function saveFormState(){
+  const state={ values:{}, chips:{} };
+  $all('[data-store]').forEach(el=>{
+    state.values[el.id] = el.type === 'checkbox' ? !!el.checked : el.value;
+  });
+  ['arch-g','tf-g','core-exit-g','core-stage-mode-g','sat-exit-g','normal-exit-g'].forEach(g=>{
+    state.chips[g] = currentChip(g);
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(state));
+}
+function loadFormState(){
+  const raw = localStorage.getItem(FORM_KEY);
+  if(!raw) return;
+  try{
+    const state = JSON.parse(raw);
+    Object.entries(state.values || {}).forEach(([id, value])=> setVal(id, value));
+    Object.entries(state.chips || {}).forEach(([gid, value])=> setChip(gid, value));
+  }catch(_err){}
+}
+function applyAiPreset(){
+  setVal('f-filename-mode', 'AIに判定してもらう');
+  setVal('f-name-mode', 'AIに判定してもらう');
+  setVal('f-strategy-type-mode', 'AIに判定してもらう');
+  setVal('f-overview-mode', 'AIに判定してもらう');
+  setVal('f-trade-style', 'AIに判定してもらう');
+  setVal('f-trade-mode', 'AIに判定してもらう');
+  setChip('arch-g', 'AIに判定してもらう');
+  setVal('f-asset-mode', 'AIに判定してもらう');
+  setVal('f-timeframe-mode', 'AIに判定してもらう');
+  setVal('f-entry-mode', 'AIに判定してもらう');
+  setVal('f-core-exit-rule-mode', 'AIに判定してもらう');
+  setVal('f-sat-exit-rule-mode', 'AIに判定してもらう');
+  setVal('f-normal-exit-rule-mode', 'AIに判定してもらう');
+  setVal('f-risk-mode', 'AIに判定してもらう');
+  setVal('f-notes-mode', 'AIに判定してもらう');
+  setVal('rt-name-mode', 'AIに判定してもらう');
+  setVal('rt-style', 'AIに判定してもらう');
+  setVal('rt-dir', 'AIに判定してもらう');
+  setVal('rt-entry-mode', 'AIに判定してもらう');
+  setVal('rt-order-mode', 'AIに判定してもらう');
+  setVal('rt-exit-mode', 'AIに判定してもらう');
+  toggleSections();
+  saveFormState();
+}
+function resetDefaults(){ localStorage.removeItem(FORM_KEY); location.reload(); }
+function toggleSections(){
+  const genMode = read('f-gen-mode', 'backtest');
+  const arch = currentChip('arch-g');
+  const isCS = arch === 'core + satellite';
+  const overviewManual = read('f-overview-mode') === '手動入力';
+  const assetManual = read('f-asset-mode') === '手動入力';
+  const timeframeManual = read('f-timeframe-mode') === '手動入力';
+  const entryManual = read('f-entry-mode') === '手動入力';
+  const useLev = !!read('f-use-leverage') || read('f-trade-style') === '先物';
+  const coreExitManual = read('f-core-exit-rule-mode') === '手動入力';
+  const satExitManual = read('f-sat-exit-rule-mode') === '手動入力';
+  const normalExitManual = read('f-normal-exit-rule-mode') === '手動入力';
+  const riskManual = read('f-risk-mode', '手動入力') === '手動入力';
+  const notesManual = read('f-notes-mode', '手動入力') === '手動入力';
+  const goalMode = read('f-goal-mode', '自由記述');
+  const coreExit = currentChip('core-exit-g') || 'staged';
+  const coreStageMode = currentChip('core-stage-mode-g') || 'repeat';
+  const satExit = currentChip('sat-exit-g') || 'tp_sl_or_signal';
+  const normalExit = currentChip('normal-exit-g') || 'tp_sl';
+  const rtNameManual = read('rt-name-mode') === '手動入力';
+  const rtIsScan = read('rt-target') === '複数銘柄スキャン（急騰/急落ランキング）';
+  const rtEntryManual = read('rt-entry-mode') === '手動入力';
+  const rtOrderManual = read('rt-order-mode') === '手動入力';
+  const rtExitManual = read('rt-exit-mode') === '手動入力';
+  const rtOrderType = read('rt-order-type');
+  const rtExitType = read('rt-exit-type');
+
+  show($('backtest-mode-wrap'), genMode === 'backtest');
+  show($('realtime-mode-wrap'), genMode === 'realtime');
+  show($('filename-wrap'), read('f-filename-mode') === '手動入力');
+  show($('name-wrap'), read('f-name-mode') === '手動入力');
+  show($('strategy-type-wrap'), read('f-strategy-type-mode') === '手動入力');
+  show($('overview-wrap'), overviewManual);
+  show($('single-asset-wrap'), !isCS && assetManual);
+  show($('core-sat-asset-wrap'), isCS && assetManual);
+  show($('timeframe-wrap'), timeframeManual);
+  show($('entry-text-wrap'), entryManual);
+  show($('core-entry-wrap'), isCS);
+  show($('core-sat-exit-wrap'), isCS);
+  show($('normal-exit-wrap'), !isCS);
+  show($('cs-params-wrap'), isCS);
+  show($('core-exit-manual'), isCS && coreExitManual);
+  show($('sat-exit-manual'), isCS && satExitManual);
+  show($('normal-exit-manual'), !isCS && normalExitManual);
+  show($('core-tpsl-wrap'), isCS && coreExitManual && coreExit !== 'hold' && coreExit !== 'signal' && coreExit !== 'staged');
+  show($('core-signal-wrap'), isCS && coreExitManual && hasSignalExit(coreExit));
+  show($('core-stage-wrap'), isCS && coreExitManual && coreExit === 'staged');
+  show($('core-stage-fixed'), isCS && coreExitManual && coreExit === 'staged' && coreStageMode === 'fixed');
+  show($('core-stage-repeat'), isCS && coreExitManual && coreExit === 'staged' && coreStageMode === 'repeat');
+  show($('sat-tpsl-wrap'), isCS && satExitManual && satExit !== 'signal' && satExit !== 'staged');
+  show($('sat-signal-wrap'), isCS && satExitManual && hasSignalExit(satExit));
+  show($('sat-stage-wrap'), isCS && satExitManual && satExit === 'staged');
+  show($('normal-tpsl-wrap'), !isCS && normalExitManual && normalExit !== 'signal' && normalExit !== 'staged');
+  show($('normal-signal-wrap'), !isCS && normalExitManual && hasSignalExit(normalExit));
+  show($('normal-stage-wrap'), !isCS && normalExitManual && normalExit === 'staged');
+  show($('risk-manual-wrap'), riskManual);
+  show($('leverage-wrap'), useLev);
+  show($('sat-scale-params'), isCS && !!read('f-sat-scale'));
+  show($('goal-free-wrap'), goalMode === '自由記述');
+  show($('goal-return-wrap'), goalMode === '期間×目標リターン');
+  show($('goal-asset-wrap'), goalMode === '期間×最終資産額');
+  show($('goal-qty-wrap'), goalMode === '枚数目標');
+  show($('notes-wrap'), notesManual);
+  show($('rt-name-wrap'), genMode === 'realtime' && rtNameManual);
+  show($('rt-single-wrap'), genMode === 'realtime' && !rtIsScan);
+  show($('rt-scan-wrap'), genMode === 'realtime' && rtIsScan);
+  show($('rt-entry-wrap'), genMode === 'realtime' && rtEntryManual);
+  show($('rt-order-wrap'), genMode === 'realtime' && rtOrderManual);
+  show($('rt-limit-wrap'), genMode === 'realtime' && rtOrderManual && rtOrderType === '指値');
+  show($('rt-exit-wrap'), genMode === 'realtime' && rtExitManual);
+  show($('rt-tpsl-wrap'), genMode === 'realtime' && rtExitManual && rtExitType !== 'シグナル決済' && rtExitType !== '保有時間で決済');
+  show($('rt-holdbars-wrap'), genMode === 'realtime' && rtExitManual && rtExitType === '保有時間で決済');
+  saveFormState();
+}
+function buildFileNameSection(){
+  const mode = read('f-filename-mode');
+  if(mode === '手動入力' && read('f-filename').trim()) return `  ${read('f-filename').trim()}`;
+  if(mode === 'AIに判定してもらう' || mode === 'AIが自動生成') return '  AI が戦略内容から分かりやすい snake_case の `.py` ファイル名を決めること。\n  ファイル名は内容が分かる英数字とアンダースコア中心で構成すること。\n  必ずファイル名の末尾に `_v1` を付けること（例: btc_rsi_breakout_v1.py）。';
+  return '  戦略名をもとに、AI が分かりやすい snake_case の `.py` ファイル名を自動生成すること。\n  ファイル名は内容が分かる英数字とアンダースコア中心で構成すること。\n  必ずファイル名の末尾に `_v1` を付けること（例: sol_trend_rsi_v1.py）。';
+}
+function buildNameSection(){
+  if(read('f-name-mode') === '手動入力' && read('f-name').trim()) return `  ${read('f-name').trim()}`;
+  return '  AI が戦略内容から分かりやすい戦略名を付けること。';
+}
+function buildStrategyTypeSection(){
+  if(read('f-strategy-type-mode') === '手動入力'){
+    const value = read('f-strategy-type', 'トレンドフォロー');
+    return `  ${value}\n  この戦略タイプに合うように、\`algo_info["type"]\` と \`algo_info["strategy_type"]\` を整合させること。`;
+  }
+  return '  AI が戦略内容から最も近い戦略タイプを 1 つ選ぶこと。\n  `トレンドフォロー / 平均回帰 / ブレイクアウト / モメンタム / 押し目買い・戻り売り / スキャルピング / スイング / グリッド / マーケットメイク / アービトラージ / ペアトレード / ファンディング活用 / コアサテライト / 資産ローテーション / イベントドリブン / ボラティリティ活用 / その他` の中から選択すること。\n  また、\`algo_info["type"]\` には英字キー、\`algo_info["strategy_type"]\` には日本語ラベルを必ず両方入れること。';
+}
+function buildOverviewSection(){
+  if(read('f-overview-mode') === '手動入力' && read('f-overview').trim()) return `  ${read('f-overview').trim()}`;
+  return '  AI が戦略内容をもとに、戦略概要を分かりやすく 1〜3 文で整理して記述すること。';
+}
+function buildTradeStyleSection(){
+  const v = read('f-trade-style');
+  if(v === 'AIに判定してもらう') return '  AI が戦略内容から最適な取引形態（どの商品・口座前提で運用するか）を判断すること。\n  取引形態は `現物 / 先物 / 現物ペア運用` の中から選ぶこと。';
+  return `  ${v}`;
+}
+function buildTradeModeSection(){
+  const v = read('f-trade-mode');
+  if(v === 'AIに判定してもらう') return '  AI が戦略内容から最適な売買モード（どの方向に売買するか）を判断すること。\n  `現物の買い/売り` と `ロング/ショート` を混同しないこと。';
+  return `  ${v}`;
+}
+function buildArchitectureSection(isCS){
+  const v = currentChip('arch-g');
+  if(v === 'AIに判定してもらう') return '  AI が戦略内容から最適なポジション構造（ポジションの持ち方）を判断すること。\n  `単一ポジション（通常の売買BOT。1回に1ポジション） / core + satellite（長期保有 + 追加売買）` の中から選ぶこと。';
+  if(isCS) return '  core + satellite を採用すること。\n  先頭付近に `POSITION_ARCHITECTURE = "core_satellite"` を必ず明記し、\n  `algo_info["position_architecture"] = "core_satellite"` も必ず含めること。\n  さらに `CORE_SYMBOL` / `SATELLITE_SYMBOL` を定義し、\n  `algo_info["core_symbol"]` / `algo_info["satellite_symbol"]` にも反映すること。';
+  return '  単一ポジション（通常の売買BOT。1回に1ポジションを持つ前提）';
+}
+function buildAssetSection(isCS){
+  const assetMode = read('f-asset-mode');
+  const arch = currentChip('arch-g');
+  if(isCS){
+    if(assetMode === 'AIに判定してもらう') return '  AI が core 資産と satellite 資産の組み合わせを判断すること。\n  `CORE_SYMBOL` / `SATELLITE_SYMBOL` を定義し、 `REQUIRED_SYMBOLS = [CORE_SYMBOL, SATELLITE_SYMBOL]` と `REQUIRED_DATA_MODE = "dual_csv"` を必ず明記すること。';
+    const core = normalizeSymbol(read('f-core', 'BTCUSDT')) || 'BTCUSDT';
+    const sat = normalizeSymbol(read('f-sat', 'SOLUSDT')) || 'SOLUSDT';
+    const same = core === sat;
+    const mode = same ? 'single_csv' : 'dual_csv';
+    return `  - core資産: ${core}\n  - satellite資産: ${sat}\n  - 必要データ構成: ${mode}（${same ? '同一銘柄のため1CSVでも可' : 'core / satellite の2CSV'}）`;
+  }
+  if(assetMode === 'AIに判定してもらう') return '  AI が対象銘柄と必要データ構成を判断すること。\n  REQUIRED_SYMBOLS と REQUIRED_DATA_MODE を必ず明記すること。';
+  const asset = normalizeSymbol(read('f-asset', 'SOLUSDT')) || 'SOLUSDT';
+  if(arch === 'AIに判定してもらう'){
+    return `  参考候補: ${asset}\n  AI はこの候補を参考に、ポジション構造との整合も含めて対象銘柄と必要データ構成を判断すること。`;
+  }
+  return `  ${asset}`;
+}
+function buildTimeframeSection(){
+  if(read('f-timeframe-mode') === 'AIに判定してもらう') return '  AI が戦略内容から最適な時間足を判断すること。\n  ただし時間足は `1分 / 5分 / 15分 / 30分 / 1時間 / 4時間 / 日足` の中から選ぶこと。\n  また、その判断結果を `RECOMMENDED_TIMEFRAME = "..."` と `algo_info["timeframe"]` の両方に明記すること。';
+  const tf = currentChip('tf-g') || '4時間';
+  return `  ${tf}\n  また、その判断結果を \`RECOMMENDED_TIMEFRAME = "${tf}"\` と \`algo_info["timeframe"]\` の両方に明記すること。`;
+}
+function buildEntrySection(isCS){
+  if(read('f-entry-mode') === 'AIに判定してもらう'){
+    if(isCS){
+      const coreMode = read('f-core-entry-mode');
+      return `  AI が Satellite のエントリー条件を具体化すること。\n  Core は \`${coreMode}\` を前提にしてよい。\n  使用指標・数値条件・発火条件を明記すること。`;
+    }
+    return '  AI が戦略内容からエントリー条件を具体化すること。使用指標・数値条件・発火条件を明記すること。';
+  }
+  const text = read('f-entry').trim();
+  if(!text) return '  AI が戦略内容からエントリー条件を具体化すること。使用指標・数値条件・発火条件を明記すること。';
+  if(isCS) return `  Core は ${read('f-core-entry-mode')} を前提。\n${indent(text,2)}`;
+  return indent(text, 2);
+}
+function readSignalNote(id){
+  return read(id, '').trim() || '（未入力 - AI が補完）';
+}
+function buildCoreExitManual(){
+  const mode = currentChip('core-exit-g') || 'staged';
+  if(mode === 'hold') return '    - 決済方式: 原則ホールド（決済しない）';
+  if(mode === 'signal') return `    - 決済方式: シグナル決済のみ\n    - 決済条件の補足: ${readSignalNote('f-core-exit-sig')}`;
+  if(mode === 'tp_sl' || mode === 'tp_sl_or_signal' || mode === 'tp_sl_and_signal'){
+    const labelMap = { tp_sl:'TP/SL のみ', tp_sl_or_signal:'TP/SL OR シグナル', tp_sl_and_signal:'TP/SL AND シグナル' };
+    const lines = [`    - 決済方式: ${labelMap[mode]}`, `    - Core TP: ${read('f-core-tp','80')}%`, `    - Core SL: ${read('f-core-sl','15')}%`];
+    if(mode !== 'tp_sl') lines.push(`    - シグナル決済条件: ${readSignalNote('f-core-exit-sig')}`);
+    return lines.join('\n');
+  }
+  const stageMode = currentChip('core-stage-mode-g') || 'repeat';
+  if(stageMode === 'fixed') return ['    - 決済方式: 段階利確（固定TP）',`    - TP1: +${read('f-core-tp1','100')}% で ${read('f-core-tp1r','10')}% 利確`,`    - TP2: +${read('f-core-tp2','200')}% で ${read('f-core-tp2r','10')}% 利確`,`    - TP3: +${read('f-core-tp3','300')}% で ${read('f-core-tp3r','10')}% 利確`,`    - SL: -${read('f-core-sl-fixed','20')}%`].join('\n');
+  const maxSteps = read('f-core-maxs','0');
+  return ['    - 決済方式: 段階利確（倍率起点の繰り返し利確）',`    - 開始条件: エントリー価格の ${read('f-core-mul','3.0')}倍以上`,`    - 追加利確: その後 +${read('f-core-step','10')}% ごとに ${read('f-core-sell','5')}% を利確`,`    - 最大利確回数: ${maxSteps === '0' ? '0=無制限' : maxSteps + '回'}`,`    - SL: -${read('f-core-sl-rep','0')}%`,'    - 実装: 段階カウンタと次回利確価格を内部状態で管理すること。'].join('\n');
+}
+function buildSatExitManual(){
+  const mode = currentChip('sat-exit-g') || 'tp_sl_or_signal';
+  const labelMap = { tp_sl:'TP/SL のみ', signal:'シグナル決済のみ', tp_sl_or_signal:'TP/SL OR シグナル', tp_sl_and_signal:'TP/SL AND シグナル', staged:'段階利確' };
+  if(mode !== 'staged'){
+    const lines = [`    - 決済方式: ${labelMap[mode]}`];
+    if(mode !== 'signal'){
+      lines.push(`    - Satellite TP: ${read('f-sat-tp','10')}%`);
+      lines.push(`    - Satellite SL: ${read('f-sat-sl','5')}%`);
+    }
+    if(mode !== 'tp_sl') lines.push(`    - シグナル決済条件: ${readSignalNote('f-sat-exit-sig')}`);
+    return lines.join('\n');
+  }
+  return ['    - 決済方式: 段階利確（複数TPで分割決済）',`    - TP1: +${read('f-sat-tp1','5')}% で ${read('f-sat-tp1r','33')}% 利確`,`    - TP2: +${read('f-sat-tp2','10')}% で ${read('f-sat-tp2r','33')}% 利確`,`    - TP3: +${read('f-sat-tp3','15')}% で ${read('f-sat-tp3r','34')}% 利確`,`    - SL: -${read('f-sat-sl2','10')}%`].join('\n');
+}
+function buildNormalExitManual(){
+  const mode = currentChip('normal-exit-g') || 'tp_sl';
+  const labelMap = { tp_sl:'TP/SL のみ', signal:'シグナル決済のみ', tp_sl_or_signal:'TP/SL OR シグナル', tp_sl_and_signal:'TP/SL AND シグナル', staged:'段階利確' };
+  if(mode !== 'staged'){
+    const lines = [`  決済方式: ${labelMap[mode]}`];
+    if(mode !== 'signal'){
+      lines.push(`  TP: ${read('f-tp','8')}%`);
+      lines.push(`  SL: ${read('f-sl','4')}%`);
+    }
+    if(mode !== 'tp_sl') lines.push(`  シグナル決済条件: ${readSignalNote('f-exit-sig')}`);
+    return lines.join('\n');
+  }
+  return ['  決済方式: 段階利確（複数TPで分割決済）',`  TP1: +${read('f-tp1','5')}% で ${read('f-tp1r','33')}% 利確`,`  TP2: +${read('f-tp2','10')}% で ${read('f-tp2r','33')}% 利確`,`  TP3: +${read('f-tp3','15')}% で ${read('f-tp3r','34')}% 利確`,`  SL: -${read('f-sl2','10')}%`].join('\n');
+}
+function buildExitSection(isCS){
+  if(isCS){
+    const coreMode = read('f-core-exit-rule-mode');
+    const satMode = read('f-sat-exit-rule-mode');
+    const coreText = coreMode === 'AIに判定してもらう' ? '    AI が core 用の最適な出口条件を判断すること。\n    決済方式は `原則ホールド / TP/SL のみ / シグナル決済のみ / TP/SL OR シグナル / TP/SL AND シグナル / 段階利確` の中から選び、必要な数値条件も具体化すること。' : buildCoreExitManual();
+    const satText = satMode === 'AIに判定してもらう' ? '    AI が satellite 用の最適な出口条件を判断すること。\n    候補: TP/SL / シグナル決済 / TP/SL OR シグナル / TP/SL AND シグナル / 段階利確。' : buildSatExitManual();
+    return `  - core用出口条件:\n${coreText}\n  - satellite用出口条件:\n${satText}`;
+  }
+  if(read('f-normal-exit-rule-mode') === 'AIに判定してもらう') return '  AI が戦略内容から最適な決済方式を判断すること。\n  決済方式は `TP/SL のみ / シグナル決済のみ / TP/SL OR シグナル / TP/SL AND シグナル / 段階利確` の中から選び、必要な数値条件も具体化すること。';
+  return buildNormalExitManual();
+}
+function buildCapitalSection(isCS){
+  if(read('f-risk-mode', '手動入力') === 'AIに判定してもらう'){
+    return '  AI が戦略内容から妥当な資金管理を判断すること。\n  ポジションサイズと初期資産を明記すること。';
+  }
+  const lines = [`  初期資産: ${read('f-capital','10000')} USD`,`  ポジションサイズ: ${read('f-possize','100')}%`];
+  if(isCS){
+    lines.push(`  Core配分: ${read('f-alloc','100')}%`);
+    lines.push(`  Coreレバレッジ: ${read('f-corelev','1.0')}x`);
+    lines.push(`  Sat1回エントリー比率: ${read('f-satpct','5.0')}%`);
+    lines.push(`  最大総合レバ: ${read('f-maxlev','3.0')}x`);
+  }
+  return lines.join('\n');
+}
+function buildLeverageSection(isCS){
+  const tradeStyle = read('f-trade-style');
+  if(!read('f-use-leverage') && tradeStyle !== '先物') return '';
+  const lev = read('f-lev','3');
+  const margin = read('f-margin','分離マージン');
+  const fee = read('f-fee','0.055');
+  const fr = read('f-fr','0.010');
+  const csNote = isCS ? ['⚠️ Core + Satellite モードの場合:','  - Core ポジションは CORE_LEVERAGE に従う（通常 1.0x = 現物相当）','  - 以下のレバレッジ設定は Satellite ポジションのみに適用すること','  - MAX_GROSS_LEVERAGE が Core+Satellite の合計レバ上限として機能する',''].join('\n') : '';
+  return ['━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','【レバレッジ先物専用ルール】','━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','このアルゴは先物レバレッジ取引用に作成すること。以下を必ず遵守すること。',csNote,'■ レバレッジ設定',`  - 取引モード: 先物（${margin}）`,`  - 想定レバレッジ: ${lev}x`,`  - 手数料率（テイカー）: ${fee}%`,`  - 想定ファンディングレート: ${fr}%/8h`,'','■ アルゴ実装の必須対応','  1. PARAM にレバレッジ設定を含めること:',`       LEVERAGE     = ${lev}    # PARAM int   min=1 max=25 step=1  label=レバレッジ倍率(x)`,`       MARGIN_MODE  = "${margin}"  # PARAM options=分離マージン,クロスマージン label=マージンモード`,'','  2. ロスカット価格を意識したSL設定にすること:',`       ロング ${lev}x の理論ロスカット = エントリー価格 × (1 - 1/${lev} + 0.005)`,'       SL はロスカット価格より手前に設定すること（推奨: ロスカット距離の 80% 以内）','','  3. ポジションサイズ = 証拠金ベースで設定すること（名目額ではなく証拠金 ÷ レバ分）','','  4. generate_signals の return 直前にシグナル反転モードを必ず追加すること:','       REVERSE_SIGNAL = False  # PARAM bool label=シグナル反転モード(負けアルゴを反転検証)','       if bool(params.get("REVERSE_SIGNAL", REVERSE_SIGNAL)):','           signals = signals * -1',''].join('\n');
+}
+function buildCoreSatelliteRules(isCS){
+  const arch = currentChip('arch-g');
+  if(!(isCS || arch === 'AIに判定してもらう')) return '';
+  const core = normalizeSymbol(read('f-core','BTCUSDT')) || 'BTCUSDT';
+  const sat = normalizeSymbol(read('f-sat','SOLUSDT')) || 'SOLUSDT';
+  const same = core === sat;
+  const dataMode = same ? 'single_csv' : 'dual_csv';
+  const satExitMode = currentChip('sat-exit-g') || 'tp_sl_or_signal';
+  const stageTp = satExitMode === 'staged' ? read('f-sat-tp1','5') : read('f-sat-tp','10');
+  const stageSl = satExitMode === 'staged' ? read('f-sat-sl2','10') : read('f-sat-sl','5');
+  const intro = arch === 'AIに判定してもらう' ? 'AI が core + satellite を採用すると判断した場合は、以下を必ず満たすこと。' : 'このアルゴは core + satellite の共有証拠金モデルに対応すること。以下を必ず満たすこと。';
+  return ['━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','【Core + Satellite 専用ルール】','━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',intro,'','■ 必須メタデータ','  - POSITION_ARCHITECTURE = "core_satellite"',`  - CORE_SYMBOL = "${core}" のように core 資産を明記`,`  - SATELLITE_SYMBOL = "${sat}" のように satellite 資産を明記`,'  - REQUIRED_SYMBOLS = [CORE_SYMBOL, SATELLITE_SYMBOL]',`  - REQUIRED_DATA_MODE = "${dataMode}"`,'  - algo_info に以下を含めること:','      "position_architecture": "core_satellite"','      "core_symbol": CORE_SYMBOL','      "satellite_symbol": SATELLITE_SYMBOL','','■ PARAM に必ず含める項目',`  CORE_ALLOCATION_PCT = ${read('f-alloc','100')}   # PARAM float min=0.0 max=100.0 step=5.0`,`  CORE_LEVERAGE       = ${read('f-corelev','1.0')}     # PARAM float min=0.0 max=10.0 step=0.5`,`  SATELLITE_ENTRY_UNIT_PCT = ${read('f-satpct','5.0')}   # PARAM float min=0.1 max=50.0 step=0.5  ← 実効担保の何%でエントリーするか`,`  SATELLITE_TP_PCT    = ${stageTp}   # PARAM float min=0.5 max=100.0 step=0.5`,`  SATELLITE_SL_PCT    = ${stageSl}   # PARAM float min=0.5 max=100.0 step=0.5`,`  MAX_GROSS_LEVERAGE  = ${read('f-maxlev','3.0')}     # PARAM float min=1.0 max=10.0 step=0.5`,`  SATELLITE_MAX_EXPOSURE_USD = ${read('f-satmaxusd','0')}   # PARAM float min=0.0 max=1000000.0 step=50.0  ← 0=制限なし`,`  COLLATERAL_HAIRCUT_PCT = ${read('f-haircut','100')}  # PARAM float min=10.0 max=100.0 step=5.0`,`  MAINT_MARGIN_PCT    = ${read('f-maint','0.5')}     # PARAM float min=0.1 max=5.0 step=0.1`,'','  # ── Satellite サイズ Core評価額連動（オプション）──',`  SAT_SIZE_SCALE_BY_CORE   = ${read('f-sat-scale') ? 'True' : 'False'}  # PARAM bool label=SatサイズをCore評価額に連動させる`,`  SAT_SIZE_UP_MAX_MULTIPLE = ${read('f-sat-up-multi','3.0')}    # PARAM float min=1.0 max=10.0 step=0.5 label=上昇時の拡大上限倍率`,`  SAT_SIZE_DOWN_FLOOR_PCT  = ${read('f-sat-down-floor','0')}    # PARAM float min=0.0 max=100.0 step=5.0 label=下落時の最低エントリー率(%)`,`  SAME_SYMBOL_SHORT_PROTECT = ${read('f-same-short-protect') ? 'True' : 'False'}  # PARAM bool`,`  SATELLITE_NO_CORE_ENTRY_PCT = ${read('f-no-core-entry','5')}  # PARAM float min=1.0 max=20.0 step=1.0 label=Core不在時Satエントリー比率(%)`,`  SATELLITE_NO_CORE_MAX_EXPOSURE_PCT = ${read('f-no-core-max','30')}  # PARAM float min=5.0 max=100.0 step=5.0 label=Core不在時Sat最大エクスポージャー(%)`,'','■ 実装上の考え方','  - core は常時保有する長期ロング','  - satellite は generate_signals() のシグナルで追加建玉を出す前提','  - satellite の TP/SL は個別建玉ごとに管理する前提でパラメータを設計すること','  - SATELLITE_ENTRY_UNIT_USD は使わず SATELLITE_ENTRY_UNIT_PCT（実効担保比率）を使うこと','  - SAT_SIZE_SCALE_BY_CORE が True の場合、以下のルールで entry_notional を補正すること:','      core_ratio = 現在のCore価格 / Coreエントリー価格','      下落時 (core_ratio < 1.0): entry_notional *= max(SAT_SIZE_DOWN_FLOOR_PCT/100, core_ratio)','      上昇時 (core_ratio > 1.0): entry_notional *= min(core_ratio, SAT_SIZE_UP_MAX_MULTIPLE)','    ただしこの補正はバックテストエンジン側で自動適用されるため、generate_signals() 内での実装は不要。# PARAM の定義だけ行うこと。','  - Core 不在時は Satellite サイズを縮小する前提をコメントや description にも明記すること',same ? '  - Core と Satellite が同一銘柄なので `REQUIRED_DATA_MODE = "single_csv"` でよい' : '  - Core と Satellite が別銘柄なので `REQUIRED_DATA_MODE = "dual_csv"` とすること','  - core 側に段階利確を使う場合は `CORE_STAGE_TRIGGER_MULTIPLE / CORE_STAGE_STEP_PCT / CORE_STAGE_SELL_RATIO_PCT / CORE_STAGE_MAX_STEPS` または `CORE_TP1_PCT / CORE_TP2_PCT / CORE_TP3_PCT` を追加してよい','  - コメントや description に「共有証拠金の core + satellite 戦略」であることを明記すること',''].join('\n');
+}
+function buildGoalText(){
+  const mode = read('f-goal-mode', '自由記述');
+  if(mode === '期間×目標リターン'){
+    const period = read('f-goal-period', '').trim();
+    const goalReturn = read('f-goal-return', '').trim();
+    if(period && goalReturn) return `${period}で${goalReturn}のリターンを目指す`;
+    if(period || goalReturn) return `運用期間: ${period || '未指定'} / 目標リターン: ${goalReturn || '未指定'}`;
+    return '';
+  }
+  if(mode === '期間×最終資産額'){
+    const period = read('f-goal-period2', '').trim();
+    const initial = read('f-goal-init', '').trim();
+    const finalAsset = read('f-goal-final', '').trim();
+    if(period && initial && finalAsset) return `${period}で${initial}を${finalAsset}にする`;
+    if(period || initial || finalAsset) return `運用期間: ${period || '未指定'} / 初期資産: ${initial || '未指定'} / 目標最終資産: ${finalAsset || '未指定'}`;
+    return '';
+  }
+  if(mode === '枚数目標'){
+    const symbol = read('f-goal-sym', '').trim();
+    const now = read('f-goal-now', '').trim();
+    const target = read('f-goal-target', '').trim();
+    if(symbol && now && target) return `${symbol}を${now}から${target}に増やす`;
+    if(symbol || now || target) return `対象銘柄: ${symbol || '未指定'} / 現在枚数: ${now || '未指定'} / 目標枚数: ${target || '未指定'}`;
+    return '';
+  }
+  return read('f-goal', '').trim();
+}
+function detectMultiRotation(){
+  if(currentChip('arch-g') === 'core + satellite') return false;
+  const assets = splitSymbols(read('f-asset', ''));
+  const strategyTypeIsRotation = read('f-strategy-type-mode') === '手動入力' && read('f-strategy-type') === '資産ローテーション';
+  const hintBlob = [
+    read('f-name', ''),
+    read('f-overview', ''),
+    read('f-entry', ''),
+    buildGoalText(),
+    read('f-notes', '')
+  ].join('\n');
+  const keywords = ['ローテ', '強弱', '最強', '最弱', 'リバランス', '乗り換え', '循環', '順位比較'];
+  return strategyTypeIsRotation || assets.length >= 3 || keywords.some(keyword => hintBlob.includes(keyword));
+}
+function buildMultiAssetRules(){
+  if(!detectMultiRotation()) return '';
+  const assets = splitSymbols(read('f-asset', '')).slice(0, 5);
+  const requiredSymbols = assets.length ? assets : ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT'];
+  return [
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【マルチ資産循環（N資産）専用ルール】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    'このアルゴは、複数銘柄を同時に保有して順位比較で資金を回すポートフォリオ横断型として作成すること。',
+    '',
+    '■ 必須メタデータ',
+    `  - REQUIRED_SYMBOLS = ${JSON.stringify(requiredSymbols)}`,
+    '  - REQUIRED_DATA_MODE = "multi_csv" を必ずそのまま使うこと（single_csv / dual_csv / either にしないこと）',
+    '  - algo_info["type"] は必ず正確に "multi_rotation" とすること',
+    '  - algo_info["strategy_type"] は "資産ローテーション" とすること',
+    '  - description / overview に「複数銘柄の強弱ローテーション戦略」であることを明記すること',
+    '',
+    '■ PARAM に必ず含める項目',
+    '  ROTATION_LOOKBACK_BARS           = 24   # PARAM int   min=1 max=500 step=1 label=比較基準バー数',
+    '  ROTATION_COMPARE_INTERVAL_BARS   = 24   # PARAM int   min=1 max=500 step=1 label=比較間隔バー数',
+    '  ROTATION_SOURCE_RANK_N           = 1    # PARAM int   min=1 max=10 step=1 label=売却元順位',
+    '  ROTATION_TARGET_RANK_N           = 1    # PARAM int   min=1 max=10 step=1 label=購入先順位',
+    '  ROTATION_TRADE_RATIO             = 0.5  # PARAM float min=0.05 max=1.0 step=0.05 label=基準乗り換え割合',
+    '  ROTATION_MIN_USD                 = 10.0 # PARAM float min=0.0 max=100000.0 step=10.0 label=最小乗り換え額(USD)',
+    '  ENTRY_ANCHORED_ROTATION          = False # PARAM bool label=買値基準で強弱比較する',
+    '  ROTATION_MIN_SPREAD_OVER_FEE_PCT = 0.0  # PARAM float min=0.0 max=20.0 step=0.1 label=手数料超過しきい値(%)',
+    '  ROTATION_FIXED_TRANSFER_USD      = 0.0  # PARAM float min=0.0 max=1000000.0 step=10.0 label=固定乗り換え額(USD)',
+    '',
+    '■ 実装上の考え方',
+    '  - マルチ資産ローテーションの主処理はシミュレータ側エンジンが担当する',
+    '  - アルゴ側は REQUIRED_SYMBOLS / REQUIRED_DATA_MODE / algo_info["type"] / # PARAM を必ず定義すること',
+    '  - generate_signals(df, params) の戻り値を資産インデックスや目標銘柄番号として使う設計にしないこと',
+    '  - もし独自ロジックを載せたい場合は generate_portfolio(df, params) を追加してもよい',
+    ''
+  ].join('\n');
+}
+function buildBacktestPrompt(){
+  const arch = currentChip('arch-g');
+  const isCS = arch === 'core + satellite';
+  const tf = currentChip('tf-g') || '4時間';
+  const goal = buildGoalText();
+  const notes = read('f-notes','').trim();
+  const notesMode = read('f-notes-mode', '手動入力');
+  const lines = [
+    '以下の仕様に従って、Crypto Bot Simulator 用の取引アルゴリズムファイル (.py) を作成してください。',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【必須ルール】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '1. パラメータには必ず # PARAM アノテーションをつけること',
+    '   書式:  変数名 = デフォルト値  # PARAM 型 min=最小 max=最大 step=刻み',
+    '   型は int / float / bool / options のいずれか',
+    '   可能な限りすべてのPARAMに `label=日本語名` を付け、UIの表示名が英字変数名だけにならないようにすること。',
+    '   例:',
+    '     RSI_PERIOD  = 14      # PARAM int   min=5    max=50   step=1   label=RSI期間',
+    '     THRESHOLD   = 30.0    # PARAM float min=10.0 max=50.0 step=0.5 label=しきい値',
+    '     USE_VOLUME  = True    # PARAM bool  label=出来高フィルター',
+    '     DIRECTION   = "long"  # PARAM options=long,short,both label=売買方向',
+    '',
+    '2. generate_signals(df, params) 関数を必ず実装すること',
+    '   - df     : open / high / low / close / volume カラムを持つ DataFrame（時系列昇順）',
+    '   - params : dict（# PARAM で定義したパラメータが自動で注入される）',
+    '   - 戻り値 : pd.Series（index=df.index, values: 1=買い / -1=売り / 0=なし）',
+    '',
+    '3. 使用可能なライブラリ: pandas (pd), numpy (np), math',
+    '   RSI は _calc_rsi(close_series, period) で計算可能（引数そのまま使用）',
+    '',
+    '4. アルゴファイルの先頭付近に、推奨足メタデータを必ず含めること',
+    '   推奨足は `1分 / 5分 / 15分 / 30分 / 1時間 / 4時間 / 日足` のいずれかを使うこと',
+    '   例:',
+    `     RECOMMENDED_TIMEFRAME = "${tf}"`,
+    '     REQUIRED_SYMBOLS = ["AVAXUSDT", "BTCUSDT"]',
+    '     REQUIRED_DATA_MODE = "dual_csv"',
+    '     algo_info = {',
+    '         "name": "Sample Algo",',
+    '         "version": "1.0",',
+    '         "author": "user",',
+    '         "type": "mean_reversion",',
+    '         "strategy_type": "平均回帰",',
+    '         "timeframe": "4時間",',
+    '         "description": "...",',
+    '         "overview": "..."',
+    '     }',
+    '',
+    '   `algo_info` には `overview` を必ず含めること。',
+    '   `type` は機械判定用の英字キー、`strategy_type` は note表示用の日本語ラベルとして両方必須。',
+    '   noteテンプレ自動入力で使うため、`description` より少し詳しい 1〜3 文の要約を書くこと。',
+    '',
+    '5. generate_signals の return の直前に、必ずシグナル反転モードを実装すること',
+    '   これにより「負けアルゴを反転させると勝てるか？」をワンクリックで検証できる。',
+    '   以下をそのままコピーして末尾に追加すること:',
+    '',
+    '     REVERSE_SIGNAL = False  # PARAM bool label=シグナル反転モード(負けアルゴを反転検証)',
+    '',
+    '     # generate_signals の return 直前',
+    '     if bool(params.get("REVERSE_SIGNAL", REVERSE_SIGNAL)):',
+    '         signals = signals * -1  # 1→-1 / -1→1 に全反転',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【戦略仕様】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【出力ファイル名】',
+    buildFileNameSection(),
+    '',
+    '【戦略名】',
+    buildNameSection(),
+    '',
+    '【戦略タイプ】',
+    buildStrategyTypeSection(),
+    '',
+    '【概要】',
+    buildOverviewSection(),
+    '',
+    '【取引形態（どの商品・口座前提で運用するか）】',
+    buildTradeStyleSection(),
+    '',
+    '【売買モード（どの方向に売買するか）】',
+    buildTradeModeSection(),
+    '',
+    '【ポジション構造（ポジションの持ち方）】',
+    buildArchitectureSection(isCS),
+    '',
+    '【対象銘柄・必要データ】',
+    buildAssetSection(isCS),
+    '',
+    '【推奨足】',
+    buildTimeframeSection(),
+    '',
+    '【エントリー条件】',
+    buildEntrySection(isCS),
+    '',
+    '【出口条件】',
+    buildExitSection(isCS),
+    '',
+    '【資金管理】',
+    buildCapitalSection(isCS)
+  ];
+  if(goal) lines.push('', '【運用目標】', `  ${goal}`);
+  if(notesMode === 'AIに判定してもらう'){
+    lines.push('', '【補足・その他の要望】', '  AI が必要なら補足事項・実装上の注意点・前提条件を補完して記載すること。');
+  }else if(notes){
+    lines.push('', '【補足・その他の要望】', indent(notes, 2));
+  }
+  const levSection = buildLeverageSection(isCS);
+  if(levSection) lines.push('', levSection.trimEnd());
+  const csRules = buildCoreSatelliteRules(isCS);
+  if(csRules) lines.push('', csRules.trimEnd());
+  const multiRules = buildMultiAssetRules();
+  if(multiRules) lines.push('', multiRules.trimEnd());
+  lines.push('', '上記をすべて満たした完全な .py ファイルを出力してください。', 'コードブロック (```python ... ```) で囲んで出力すること。');
+  return lines.join('\n');
+}
+function rtTimeframeMeta(style){
+  if(style === 'AIに判定してもらう') return 'AIに判定してもらう';
+  if(style.includes('1分〜5分')) return '5分';
+  if(style.includes('5分〜15分')) return '15分';
+  if(style.includes('15分〜1時間')) return '15分';
+  if(style.includes('1時間〜4時間')) return '1時間';
+  return '15分';
+}
+function rtAiValue(v, fallback='（AI が提案）'){
+  return v === 'AIに判定してもらう' ? fallback : v;
+}
+function buildRealtimePrompt(){
+  const strategyName = read('rt-name-mode') === '手動入力' && read('rt-name').trim() ? read('rt-name').trim() : '（AI が提案）';
+  const tradeStyle = read('rt-style', 'AIに判定してもらう');
+  const direction = read('rt-dir', 'AIに判定してもらう');
+  const target = read('rt-target', '単一銘柄（指定した1つの銘柄）');
+  const isScan = target === '複数銘柄スキャン（急騰/急落ランキング）';
+  const entryMode = read('rt-entry-mode', 'AIに判定してもらう');
+  const entryIndicators = read('rt-indicators', '').trim() || '指定なし';
+  const orderMode = read('rt-order-mode', 'AIに判定してもらう');
+  const orderType = read('rt-order-type', '成行');
+  const exitMode = read('rt-exit-mode', 'AIに判定してもらう');
+  const exitType = read('rt-exit-type', 'TP/SL（利確・損切り）');
+  const tfMeta = rtTimeframeMeta(tradeStyle);
+  const aiItems = [];
+  if(read('rt-name-mode') === 'AIに判定してもらう') aiItems.push('strategy_name');
+  if(tradeStyle === 'AIに判定してもらう') aiItems.push('trade_style');
+  if(direction === 'AIに判定してもらう') aiItems.push('direction');
+  if(entryMode === 'AIに判定してもらう') aiItems.push('entry');
+  if(orderMode === 'AIに判定してもらう') aiItems.push('order');
+  if(exitMode === 'AIに判定してもらう') aiItems.push('exit');
+
+  const entrySection = entryMode === 'AIに判定してもらう'
+    ? '（未入力 – AI が補完すること）'
+    : read('rt-entry', '').trim() || '（未入力 – AI が補完すること）';
+
+  const targetSection = isScan
+    ? [
+        '- 対象方式: 複数銘柄スキャン',
+        `- ${read('rt-scan-tf','15')}分ごとの騰落率を見る`,
+        `- ${read('rt-rank-target','急騰上位')} ${read('rt-rank-n','5')}位までを候補にする`,
+        `- 対象ユニバース: ${read('rt-universe','BTCUSDT, ETHUSDT, SOLUSDT')}`
+      ].join('\n')
+    : `- 対象銘柄: ${normalizeSymbol(read('rt-symbol','BTCUSDT')) || 'BTCUSDT'}\n- 方式: 単一銘柄条件方式`;
+
+  let orderSection = 'AI が成行・指値のどちらが戦略に適しているかを判定し実装すること';
+  if(orderMode === '手動入力'){
+    orderSection = `- 注文方法: ${orderType}\n- 最大同時保有数: ${read('rt-max-pos','3')} ポジション\n- 1回エントリー額: 資産の ${read('rt-possize','10')}%`;
+    if(orderType === '指値'){
+      orderSection += `\n- LIMIT_OFFSET_PCT: ${read('rt-limit-offset','0.5')}%\n- 未約定キャンセル時間: ${read('rt-limit-timeout','1.0')} 時間`;
+    }
+  } else {
+    orderSection += `\n- 最大同時保有数: ${read('rt-max-pos','3')} ポジション\n- 1回エントリー額: 資産の ${read('rt-possize','10')}%`;
+  }
+
+  let exitSection = 'AI が戦略に最適な決済ロジック（TP/SL・シグナル決済・保有時間など）を判定して実装すること';
+  if(exitMode === '手動入力'){
+    const parts = [`- 決済方式: ${exitType}`];
+    if(exitType !== 'シグナル決済'){
+      parts.push(`- TP: ${read('rt-tp-val','3')}${read('rt-tp-unit','パーセント（%）').includes('%') ? '%' : ' USDT'}`);
+      parts.push(`- SL: ${read('rt-sl-val','1')}${read('rt-sl-unit','パーセント（%）').includes('%') ? '%' : ' USDT'}`);
+    }
+    if(exitType === '保有時間で決済'){
+      parts.push(`- 保有時間: ${read('rt-hold-bars','4')} 本`);
+    }
+    exitSection = parts.join('\n');
+  }
+
+  const extraNotes = read('rt-notes', '').trim();
+  const lines = [
+    '以下の仕様に従って、Crypto Bot Simulator のリアルタイム検証用アルゴファイル（.py）を作成してください。',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【必須ルール】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '1. ファイルは Python (.py) 形式',
+    '2. 必ず `generate_signals(df: pd.DataFrame, params: dict) -> pd.Series` 関数を定義すること',
+    '3. 戻り値は pd.Series で、値は 1（BUY）/ -1（SELL）/ 0（HOLD）のみ',
+    '4. df には columns: open, high, low, close, volume が含まれ、index は datetime',
+    '5. パラメータはすべて `# PARAM` アノテーションで定義すること',
+    '   書式: `変数名 = デフォルト値  # PARAM int/float/bool min=X max=Y step=Z label=日本語名`',
+    '6. import は pandas as pd、numpy as np のみ使用（外部ライブラリ禁止）',
+    '7. コメントは日本語で記述すること',
+    '8. ファイル先頭にメタ情報を記述すること:',
+    `   STRATEGY_NAME = "${strategyName}"`,
+    `   REQUIRED_TIMEFRAME = "${tfMeta}"`,
+    '   algo_info = {',
+    '       "name": STRATEGY_NAME,',
+    '       "version": "1.0",',
+    '       "author": "user",',
+    '       "type": "realtime_signal",',
+    '       "timeframe": REQUIRED_TIMEFRAME,',
+    '       "description": "戦略の短い説明",',
+    '       "overview": "note転記にも使える、1〜3文の少し詳しい概要"',
+    '   }',
+    '9. `algo_info["overview"]` は必ず含めること',
+    '10. `generate_signals` の return 直前に、必ずシグナル反転モードを実装すること:',
+    '   REVERSE_SIGNAL = False  # PARAM bool label=シグナル反転モード(負けアルゴを反転検証)',
+    '   if bool(params.get("REVERSE_SIGNAL", REVERSE_SIGNAL)):',
+    '       signals = signals * -1',
+    '11. 現行リアルタイム検証エンジンは `generate_signals(df, params)` を直接実行するため、`generate_portfolio()` は使わないこと',
+    '12. 単一OHLCVの df だけで成立する戦略にすること',
+    '13. TP/SL・指値・保有時間など注文/決済に使う数値は、できるだけ # PARAM に切り出すこと',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【戦略仕様】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    `戦略名: ${strategyName}`,
+    `取引スタイル: ${rtAiValue(tradeStyle, '（AI が最適な取引スタイルを判定・提案すること）')}（推奨足: ${tradeStyle === 'AIに判定してもらう' ? '戦略に適した時間足（AI が判定）' : tfMeta}）`,
+    `取引方向: ${rtAiValue(direction, '（AI が最適な取引方向を判定・提案すること）')}`,
+    '',
+    '【エントリー】',
+    targetSection,
+    `- 使用指標: ${entryIndicators}`,
+    `- エントリー条件: ${entrySection}`,
+    '',
+    '【注文方法】',
+    orderSection,
+    '',
+    '【決済方法】',
+    exitSection,
+    '- TP_PCT / SL_PCT は必ず # PARAM で定義し調整可能にすること',
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '【実装上の注意】',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '- generate_signals() はバー単位で過去の全データを受け取る',
+    '- リアルタイム検証では最新バーの signals.iloc[-1] が「現在のシグナル」として使われる',
+    '- シグナルが変化したタイミング（前バーと異なるとき）のみエントリー・決済が実行される',
+    '- ウォームアップ期間は signals の先頭を 0 で埋めること',
+  ];
+  if(aiItems.length){
+    lines.push('', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '【AI に任せた項目】', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '以下の項目はユーザーが「AI に判定してもらう」を選択しました。', 'AI が戦略として最も合理的な値・ロジックを判断して実装してください:');
+    aiItems.forEach(item => lines.push(`- ${item}`));
+  }
+  if(extraNotes){
+    lines.push('', '【補足・その他の要望】', indent(extraNotes, 2));
+  }
+  lines.push('', '上記をすべて満たす Python ファイルを1つ出力してください。', 'コードブロック (```python ... ```) で囲んで出力すること。');
+  return lines.join('\n');
+}
+function buildPrompt(){
+  return read('f-gen-mode', 'backtest') === 'realtime' ? buildRealtimePrompt() : buildBacktestPrompt();
+}
+function generateAndCopy(){
+  const prompt = buildPrompt();
+  $('prompt-preview').textContent = prompt;
+  show($('result-wrap'), true);
+  navigator.clipboard.writeText(prompt).then(()=>toast('プロンプトをコピーしました'));
+}
+function copyPrompt(){
+  const text = $('prompt-preview').textContent.trim();
+  if(!text){ toast('先にプロンプトを生成してください'); return; }
+  navigator.clipboard.writeText(text).then(()=>toast('コピーしました'));
+}
+function initTabs(){
+  $all('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      $all('.tab').forEach(x=>x.classList.remove('active'));
+      $all('.page').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      $(`tab-${tab.dataset.tab}`).classList.add('active');
+    });
+  });
+}
+function initChips(){
+  $all('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const group = chip.dataset.group;
+      $all(`#${group} .chip`).forEach(x=>x.classList.remove('active'));
+      chip.classList.add('active');
+      toggleSections();
+    });
+  });
+}
+function initPromptEvents(){
+  $all('[data-store]').forEach(el=>{
+    el.addEventListener('input', saveFormState);
+    el.addEventListener('change', toggleSections);
+  });
+  $('btn-all-ai').addEventListener('click', applyAiPreset);
+  $('btn-reset-default').addEventListener('click', resetDefaults);
+  $('btn-generate').addEventListener('click', generateAndCopy);
+  $('btn-copy').addEventListener('click', copyPrompt);
+}
+function loadMemo(){ $('memo-text').value = localStorage.getItem(MEMO_KEY) || ''; }
+function saveMemo(){ localStorage.setItem(MEMO_KEY, $('memo-text').value); }
+function copyMemo(){ navigator.clipboard.writeText($('memo-text').value || '').then(()=>toast('メモをコピーしました')); }
+function clearMemo(){ if(confirm('メモをクリアしますか？')){ $('memo-text').value=''; localStorage.removeItem(MEMO_KEY); toast('メモをクリアしました'); } }
+let paramNotes=[];
+function loadPNotes(){
+  try{ paramNotes = JSON.parse(localStorage.getItem(PNOTE_KEY) || '[]'); }catch(_err){ paramNotes=[]; }
+  renderPNotes();
+}
+function savePNote(){
+  const title = $('pnote-title').value.trim();
+  const body = $('pnote-body').value.trim();
+  if(!title && !body){ toast('タイトルか本文を入力してください'); return; }
+  paramNotes.unshift({ id:Date.now(), title:title || '無題', body, date:new Date().toLocaleString('ja-JP') });
+  localStorage.setItem(PNOTE_KEY, JSON.stringify(paramNotes));
+  $('pnote-title').value=''; $('pnote-body').value='';
+  renderPNotes(); toast('覚え書きを保存しました');
+}
+function deletePNote(id){ paramNotes = paramNotes.filter(x=>x.id!==id); localStorage.setItem(PNOTE_KEY, JSON.stringify(paramNotes)); renderPNotes(); }
+function copyPNote(id){ const item = paramNotes.find(x=>x.id===id); if(!item) return; navigator.clipboard.writeText(`${item.title}\n${item.body}`).then(()=>toast('コピーしました')); }
+function renderPNotes(){
+  $('pnote-list').innerHTML = paramNotes.length ? paramNotes.map(item => `
+    <div class="item-box">
+      <div class="item-meta">${item.date}</div>
+      <div style="font-weight:800;color:var(--accent);font-size:13px;margin-bottom:4px">${item.title}</div>
+      <div style="font-size:12px;line-height:1.6;color:var(--text-2)">${(item.body || '').replace(/\n/g,'<br>')}</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-secondary btn-small" type="button" onclick="copyPNote(${item.id})">コピー</button>
+        <button class="btn btn-danger btn-small" type="button" onclick="deletePNote(${item.id})">削除</button>
+      </div>
+    </div>
+  `).join('') : '<div class="caption">まだ保存はありません。</div>';
+}
+let ideas=[];
+function loadIdeas(){
+  try{ ideas = JSON.parse(localStorage.getItem(IDEA_KEY) || '[]'); }catch(_err){ ideas=[]; }
+  renderIdeas();
+}
+function saveIdea(){
+  const text = $('idea-text').value.trim();
+  const tag = $('idea-tag').value.trim();
+  if(!text){ toast('アイデア本文を入力してください'); return; }
+  ideas.unshift({ id:Date.now(), text, tag, date:new Date().toLocaleString('ja-JP') });
+  localStorage.setItem(IDEA_KEY, JSON.stringify(ideas));
+  $('idea-text').value=''; $('idea-tag').value='';
+  renderIdeas(); toast('アイデアを保存しました');
+}
+function useIdea(id){
+  const item = ideas.find(x=>x.id===id);
+  if(!item) return;
+  if(read('f-gen-mode', 'backtest') === 'realtime'){
+    $('rt-entry').value = item.text;
+    setVal('rt-entry-mode', '手動入力');
+  }else{
+    $('f-entry').value = item.text;
+    setVal('f-entry-mode', '手動入力');
+  }
+  document.querySelector('.tab[data-tab="prompt"]').click();
+  toggleSections();
+  saveFormState();
+  toast('エントリー条件に反映しました');
+}
+function deleteIdea(id){ ideas = ideas.filter(x=>x.id!==id); localStorage.setItem(IDEA_KEY, JSON.stringify(ideas)); renderIdeas(); }
+function renderIdeas(){
+  $('idea-list').innerHTML = ideas.length ? ideas.map(item => `
+    <div class="item-box">
+      <div class="item-meta">${item.date}${item.tag ? ' / ' + item.tag : ''}</div>
+      <div style="font-size:13px;line-height:1.65">${item.text.replace(/\n/g,'<br>')}</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-secondary btn-small" type="button" onclick="useIdea(${item.id})">エントリーに反映</button>
+        <button class="btn btn-danger btn-small" type="button" onclick="deleteIdea(${item.id})">削除</button>
+      </div>
+    </div>
+  `).join('') : '<div class="caption">まだ保存されたアイデアはありません。</div>';
+}
+window.copyPNote = copyPNote;
+window.deletePNote = deletePNote;
+window.useIdea = useIdea;
+window.deleteIdea = deleteIdea;
+document.addEventListener('DOMContentLoaded', ()=>{
+  initTabs();
+  initChips();
+  loadFormState();
+  initPromptEvents();
+  $('memo-text').addEventListener('input', saveMemo);
+  $('btn-copy-memo').addEventListener('click', copyMemo);
+  $('btn-clear-memo').addEventListener('click', clearMemo);
+  $('btn-save-pnote').addEventListener('click', savePNote);
+  $('btn-save-idea').addEventListener('click', saveIdea);
+  loadMemo();
+  loadPNotes();
+  loadIdeas();
+  toggleSections();
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
